@@ -1,243 +1,268 @@
 <!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Domain History Checker</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Domain History Checker</title>
 
-  <style>
-    *{box-sizing:border-box}
+<style>
+*{
+  box-sizing:border-box
+}
 
-    body{
-      margin:0;
-      font:14px system-ui;
-      background:#0b1020;
-      color:#eef2ff
-    }
+body{
+  margin:0;
+  font:14px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#0b1020;
+  color:#eef2ff
+}
 
-    .wrap{
-      max-width:1180px;
-      margin:auto;
-      padding:24px
-    }
+.wrap{
+  max-width:1180px;
+  margin:auto;
+  padding:24px
+}
 
-    h1{
-      margin:0 0 16px;
-      font-size:28px
-    }
+h1{
+  margin:0 0 16px;
+  font-size:28px
+}
 
-    .card{
-      background:#121a2e;
-      border:1px solid #26324d;
-      border-radius:14px;
-      padding:16px;
-      margin-bottom:14px
-    }
+.card{
+  background:#121a2e;
+  border:1px solid #26324d;
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:14px
+}
 
-    textarea{
-      width:100%;
-      min-height:150px;
-      background:#0d1425;
-      color:#fff;
-      border:1px solid #33415f;
-      border-radius:10px;
-      padding:12px;
-      resize:vertical
-    }
+textarea{
+  width:100%;
+  min-height:150px;
+  background:#0d1425;
+  color:#fff;
+  border:1px solid #33415f;
+  border-radius:10px;
+  padding:12px;
+  resize:vertical;
+  font-family:Consolas,monospace
+}
 
-    .bar{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      margin-top:12px
-    }
+.bar{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-top:12px
+}
 
-    button{
-      border:0;
-      border-radius:9px;
-      padding:10px 15px;
-      font-weight:700;
-      cursor:pointer
-    }
+button{
+  border:0;
+  border-radius:9px;
+  padding:10px 15px;
+  font-weight:700;
+  cursor:pointer
+}
 
-    .go{
-      background:#22c55e;
-      color:#04130a
-    }
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed
+}
 
-    .stop{
-      background:#ef4444;
-      color:#fff
-    }
+.go{
+  background:#22c55e;
+  color:#04130a
+}
 
-    .csv{
-      background:#334155;
-      color:#fff
-    }
+.stop{
+  background:#ef4444;
+  color:white
+}
 
-    .clean{
-      background:#2563eb;
-      color:#fff
-    }
+.csv{
+  background:#334155;
+  color:white
+}
 
-    .muted{
-      color:#94a3b8
-    }
+.clean{
+  background:#2563eb;
+  color:white
+}
 
-    .clean-info{
-      margin-top:10px;
-      font-size:13px;
-      color:#93c5fd
-    }
+.muted{
+  color:#94a3b8
+}
 
-    .progress{
-      height:8px;
-      background:#1e293b;
-      border-radius:9px;
-      overflow:hidden;
-      flex:1;
-      min-width:160px
-    }
+.clean-info{
+  margin-top:10px;
+  font-size:13px;
+  color:#93c5fd
+}
 
-    .progress>i{
-      display:block;
-      height:100%;
-      width:0;
-      background:#38bdf8
-    }
+.progress{
+  height:8px;
+  background:#1e293b;
+  border-radius:9px;
+  overflow:hidden;
+  flex:1;
+  min-width:160px
+}
 
-    .table{
-      overflow:auto
-    }
+.progress i{
+  display:block;
+  height:100%;
+  width:0;
+  background:#38bdf8;
+  transition:width .2s
+}
 
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:1000px
-    }
+.table{
+  overflow:auto
+}
 
-    th,td{
-      padding:9px;
-      border-bottom:1px solid #26324d;
-      text-align:left;
-      vertical-align:top
-    }
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:1050px
+}
 
-    th{
-      position:sticky;
-      top:0;
-      background:#121a2e
-    }
+th,td{
+  padding:10px;
+  border-bottom:1px solid #26324d;
+  text-align:left;
+  vertical-align:top
+}
 
-    .ok{
-      color:#86efac
-    }
+th{
+  position:sticky;
+  top:0;
+  background:#121a2e;
+  white-space:nowrap
+}
 
-    .err{
-      color:#fca5a5
-    }
+.ok{
+  color:#86efac
+}
 
-    .tag{
-      display:inline-block;
-      padding:3px 7px;
-      border-radius:999px;
-      background:#1e293b
-    }
+.err{
+  color:#fca5a5
+}
 
-    .desc{
-      max-width:420px;
-      white-space:normal
-    }
+.wait{
+  color:#facc15
+}
 
-    .small{
-      font-size:12px
-    }
-  </style>
+.tag{
+  display:inline-block;
+  padding:3px 7px;
+  border-radius:999px;
+  background:#1e293b;
+  white-space:nowrap
+}
+
+.desc{
+  max-width:430px;
+  white-space:normal
+}
+
+.small{
+  font-size:12px
+}
+
+.domain-link{
+  color:#7dd3fc
+}
+
+.counter{
+  white-space:nowrap
+}
+</style>
 </head>
 
 <body>
 
 <div class="wrap">
 
-  <h1>Domain History Checker</h1>
+<h1>Domain History Checker</h1>
 
-  <div class="card">
+<div class="card">
 
-    <textarea
-      id="input"
-      placeholder="Dán domain, URL hoặc dữ liệu lẫn text...
+<textarea
+  id="input"
+  placeholder="Dán domain, URL hoặc dữ liệu lẫn text...
+
 example.com
 https://abc.com/page
 www.test.net
-text rác sẽ tự bị loại"
-    ></textarea>
 
-    <div class="bar">
+Text rác, URL path và domain trùng sẽ tự bị loại."
+></textarea>
 
-      <button class="go" id="start">
-        Bắt đầu quét
-      </button>
+<div class="bar">
 
-      <button class="clean" id="clean">
-        Làm sạch
-      </button>
+<button class="go" id="start">
+  Bắt đầu quét
+</button>
 
-      <button class="stop" id="stop" disabled>
-        Dừng
-      </button>
+<button class="clean" id="clean">
+  Làm sạch
+</button>
 
-      <button class="csv" id="csv">
-        Xuất CSV
-      </button>
+<button class="stop" id="stop" disabled>
+  Dừng
+</button>
 
-      <span id="stat" class="muted">
-        0 domain
-      </span>
+<button class="csv" id="csv">
+  Xuất CSV
+</button>
 
-      <div class="progress">
-        <i id="prog"></i>
-      </div>
+<span id="stat" class="muted counter">
+  0 domain
+</span>
 
-    </div>
+<div class="progress">
+  <i id="prog"></i>
+</div>
 
-    <div id="cleanInfo" class="clean-info">
-      Chưa phân tích dữ liệu.
-    </div>
+</div>
 
-  </div>
+<div id="cleanInfo" class="clean-info">
+  Chưa phân tích dữ liệu.
+</div>
+
+</div>
 
 
-  <div class="card table">
+<div class="card table">
 
-    <table>
+<table>
 
-      <thead>
-        <tr>
-          <th>Domain</th>
-          <th>Trạng thái</th>
-          <th>Số năm</th>
-          <th>Năm đầu</th>
-          <th>Năm cuối</th>
-          <th>Bản lưu</th>
-          <th>Chủ đề</th>
-          <th>Mô tả lịch sử</th>
-        </tr>
-      </thead>
+<thead>
+<tr>
+  <th>Domain</th>
+  <th>Trạng thái</th>
+  <th>Số năm</th>
+  <th>Năm đầu</th>
+  <th>Năm cuối</th>
+  <th>Bản lưu</th>
+  <th>Chủ đề</th>
+  <th>Mô tả lịch sử</th>
+</tr>
+</thead>
 
-      <tbody id="rows">
+<tbody id="rows">
 
-        <tr>
-          <td colspan="8" class="muted">
-            Chưa có dữ liệu.
-          </td>
-        </tr>
+<tr>
+  <td colspan="8" class="muted">
+    Chưa có dữ liệu.
+  </td>
+</tr>
 
-      </tbody>
+</tbody>
 
-    </table>
+</table>
 
-  </div>
+</div>
 
 </div>
 
@@ -246,13 +271,13 @@ text rác sẽ tự bị loại"
 
 const $ = s => document.querySelector(s);
 
-let abort = false;
+let abortScan = false;
 let results = [];
 
 
-/* ================================
-   LỌC + LÀM SẠCH DOMAIN
-================================ */
+/* ========================================
+   LỌC DOMAIN
+======================================== */
 
 function cleanDomains(raw){
 
@@ -262,7 +287,7 @@ function cleanDomains(raw){
   let invalid = 0;
   let duplicates = 0;
 
-  if(!raw.trim()){
+  if(!raw || !raw.trim()){
     return {
       domains:[],
       invalid:0,
@@ -270,121 +295,83 @@ function cleanDomains(raw){
     };
   }
 
-  /*
-    Hỗ trợ:
-    - mỗi dòng một domain
-    - cách nhau bằng dấu cách
-    - dấu phẩy
-    - tab
-  */
-
   const tokens = raw
     .split(/[\s,;]+/)
     .map(x => x.trim())
     .filter(Boolean);
 
-
   for(let token of tokens){
 
     let s = token.trim();
 
-
-    /* email -> lấy domain */
-    if(
-      /^[^@\s]+@[^@\s]+\.[^@\s]+$/i.test(s)
-    ){
+    /*
+      email:
+      abc@example.com
+      =>
+      example.com
+    */
+    if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/i.test(s)){
       s = s.split("@").pop();
     }
 
 
-    /* URL đầy đủ */
+    /*
+      URL đầy đủ
+    */
     try{
 
       if(/^https?:\/\//i.test(s)){
-
         s = new URL(s).hostname;
-
       }
 
     }catch(e){}
 
 
     /*
-      bỏ protocol nếu URL hơi lỗi
-    */
-    s = s.replace(
-      /^(https?:\/\/)/i,
-      ""
-    );
-
-
-    /*
-      bỏ www.
-    */
-    s = s.replace(
-      /^www\./i,
-      ""
-    );
-
-
-    /*
-      bỏ path
-      ?query
-      #hash
-      port
+      làm sạch
     */
     s = s
+      .replace(/^https?:\/\//i,"")
+      .replace(/^www\./i,"")
       .split("/")[0]
       .split("?")[0]
       .split("#")[0]
-      .split(":")[0];
-
-
-    /*
-      bỏ ký tự dư đầu/cuối
-    */
-    s = s
-      .replace(/^[("'[\]{}<>]+/g,"")
-      .replace(/[)"'\[\]{}<>,.]+$/g,"")
+      .split(":")[0]
       .trim()
       .toLowerCase();
 
 
     /*
-      regex domain
-
-      CHỈ cần 1 dấu chấm trở lên.
-
-      abc.com      OK
-      test.net     OK
-      a.b.com      OK
-      abc          LOẠI
-      hello123     LOẠI
+      bỏ ký tự thừa đầu/cuối
     */
+    s = s
+      .replace(/^[("'{}\[\]<>]+/g,"")
+      .replace(/[)"'{}\[\]<>,.]+$/g,"");
 
+
+    /*
+      Domain hợp lệ:
+
+      abc.com
+      abc.info
+      sub.abc.com
+      abc.co.uk
+
+      Không còn yêu cầu 2 dấu chấm
+    */
     const domainRe =
       /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
 
 
     if(!domainRe.test(s)){
-
       invalid++;
-
       continue;
-
     }
 
 
-    /*
-      domain trùng
-    */
-
     if(seen.has(s)){
-
       duplicates++;
-
       continue;
-
     }
 
 
@@ -393,13 +380,10 @@ function cleanDomains(raw){
 
 
     /*
-      giới hạn an toàn
+      giới hạn 1000 domain
     */
-
     if(valid.length >= 1000){
-
       break;
-
     }
 
   }
@@ -414,9 +398,9 @@ function cleanDomains(raw){
 }
 
 
-/* ================================
-   CẬP NHẬT THỐNG KÊ INPUT
-================================ */
+/* ========================================
+   THỐNG KÊ INPUT
+======================================== */
 
 function updateInputStats(){
 
@@ -425,19 +409,18 @@ function updateInputStats(){
   );
 
   $("#stat").textContent =
-    info.domains.length + " domain";
+    `${info.domains.length} domain`;
 
   $("#cleanInfo").textContent =
     `Hợp lệ: ${info.domains.length} · ` +
     `Lỗi/rác: ${info.invalid} · ` +
     `Trùng: ${info.duplicates}`;
-
 }
 
 
-/* ================================
-   NÚT LÀM SẠCH
-================================ */
+/* ========================================
+   LÀM SẠCH
+======================================== */
 
 function cleanInput(){
 
@@ -445,26 +428,22 @@ function cleanInput(){
     $("#input").value
   );
 
-
   $("#input").value =
     info.domains.join("\n");
 
-
   $("#stat").textContent =
-    info.domains.length + " domain";
-
+    `${info.domains.length} domain`;
 
   $("#cleanInfo").textContent =
     `Đã giữ ${info.domains.length} domain · ` +
     `loại ${info.invalid} dòng lỗi/rác · ` +
     `loại ${info.duplicates} domain trùng`;
-
 }
 
 
-/* ================================
-   ESCAPE HTML
-================================ */
+/* ========================================
+   ESCAPE
+======================================== */
 
 function esc(s=""){
 
@@ -478,159 +457,209 @@ function esc(s=""){
       "'":"&#39;"
     }[m])
   );
-
 }
 
 
-/* ================================
+/* ========================================
    VẼ BẢNG
-================================ */
+======================================== */
 
 function draw(){
 
   const body = $("#rows");
 
-
   if(!results.length){
 
-    body.innerHTML =
-      `<tr>
+    body.innerHTML = `
+      <tr>
         <td colspan="8" class="muted">
           Chưa có dữ liệu.
         </td>
-      </tr>`;
+      </tr>
+    `;
 
     return;
-
   }
 
 
-  body.innerHTML =
-    results.map(r => `
+  body.innerHTML = results.map(r => {
 
+    let statusText = "Xong";
+    let statusClass = "ok";
+
+    if(r.status === "checking"){
+      statusText = "Đang quét...";
+      statusClass = "wait";
+    }
+
+    if(r.error){
+      statusText = "Lỗi";
+      statusClass = "err";
+    }
+
+
+    return `
       <tr>
 
         <td>
-
           <a
-            style="color:#7dd3fc"
+            class="domain-link"
             target="_blank"
             href="https://web.archive.org/web/*/${esc(r.domain)}"
           >
-
             ${esc(r.domain)}
-
           </a>
-
         </td>
 
-
-        <td class="${r.error ? "err" : "ok"}">
-
-          ${r.error ? "Lỗi" : "Xong"}
-
+        <td class="${statusClass}">
+          ${statusText}
         </td>
-
 
         <td>
           ${esc(r.years ?? "—")}
         </td>
 
-
         <td>
           ${esc(r.firstYear ?? "—")}
         </td>
-
 
         <td>
           ${esc(r.lastYear ?? "—")}
         </td>
 
-
         <td>
           ${esc(r.totalSnapshots ?? 0)}
         </td>
 
-
         <td>
-
           <span class="tag">
-
             ${esc(r.topic ?? "Không rõ")}
-
           </span>
-
         </td>
 
-
         <td class="desc small">
-
           ${esc(
             r.description ??
             r.error ??
             ""
           )}
-
         </td>
 
       </tr>
+    `;
 
-    `).join("");
-
+  }).join("");
 }
 
 
-/* ================================
-   GỌI API
-================================ */
+/* ========================================
+   API
+======================================== */
 
 async function scanOne(domain){
 
-  const res = await fetch(
+  const controller =
+    new AbortController();
 
-    "/api/scan?domain=" +
-    encodeURIComponent(domain),
-
-    {
-      cache:"no-store"
-    }
-
-  );
-
-
-  const data = await res.json();
-
-
-  if(!res.ok){
-
-    throw new Error(
-      data.error || "Scan lỗi"
+  const timeout =
+    setTimeout(
+      () => controller.abort(),
+      25000
     );
 
+  try{
+
+    const res = await fetch(
+      "/api/scan?domain=" +
+      encodeURIComponent(domain),
+      {
+        cache:"no-store",
+        signal:controller.signal
+      }
+    );
+
+
+    const text =
+      await res.text();
+
+
+    let data;
+
+    try{
+      data = JSON.parse(text);
+    }catch{
+      throw new Error(
+        `API trả dữ liệu không hợp lệ (${res.status})`
+      );
+    }
+
+
+    if(!res.ok){
+
+      throw new Error(
+        data.error ||
+        `API lỗi ${res.status}`
+      );
+
+    }
+
+
+    return data;
+
+  }catch(e){
+
+    if(e.name === "AbortError"){
+      throw new Error(
+        "Quá thời gian chờ API"
+      );
+    }
+
+    throw e;
+
+  }finally{
+
+    clearTimeout(timeout);
+
   }
+}
 
 
-  return data;
+/* ========================================
+   UPDATE 1 DÒNG
+======================================== */
+
+function updateResult(domain,data){
+
+  const index =
+    results.findIndex(
+      x => x.domain === domain
+    );
+
+  if(index === -1){
+    results.push(data);
+  }else{
+    results[index] = {
+      ...results[index],
+      ...data
+    };
+  }
 
 }
 
 
-/* ================================
-   QUÉT DOMAIN
-================================ */
+/* ========================================
+   QUÉT
+======================================== */
 
 async function run(){
 
-  /*
-    tự làm sạch trước khi quét
-  */
+  const clean =
+    cleanDomains(
+      $("#input").value
+    );
 
-  const clean = cleanDomains(
-    $("#input").value
-  );
-
-
-  const ds = clean.domains;
+  const ds =
+    clean.domains;
 
 
   if(!ds.length){
@@ -639,14 +668,12 @@ async function run(){
       "Không tìm thấy domain hợp lệ.";
 
     return;
-
   }
 
 
   /*
-    cập nhật textarea chỉ còn domain sạch
+    thay textarea bằng danh sách sạch
   */
-
   $("#input").value =
     ds.join("\n");
 
@@ -657,9 +684,23 @@ async function run(){
     `loại ${clean.duplicates} domain trùng`;
 
 
-  abort = false;
+  abortScan = false;
 
-  results = [];
+
+  /*
+    tạo sẵn toàn bộ dòng
+  */
+  results = ds.map(domain => ({
+    domain,
+    status:"waiting",
+    years:"—",
+    firstYear:"—",
+    lastYear:"—",
+    totalSnapshots:0,
+    topic:"Chờ quét",
+    description:""
+  }));
+
 
   draw();
 
@@ -669,74 +710,113 @@ async function run(){
   $("#stop").disabled = false;
 
 
-  $("#prog").style.width = "0%";
+  $("#prog").style.width =
+    "0%";
 
 
   let done = 0;
 
 
   /*
-    chạy 5 domain cùng lúc
+    QUAN TRỌNG:
+    chỉ quét 2 domain song song
+    để hạn chế Wayback chặn
   */
-
-  const concurrency = 5;
-
-
-  const workers =
-    Array.from(
-      {
-        length:Math.min(
-          concurrency,
-          ds.length
-        )
-      },
-
-      async (_,wi)=>{
-
-        for(
-          let i=wi;
-          i<ds.length && !abort;
-          i+=concurrency
-        ){
-
-          const d = ds[i];
+  const concurrency = 2;
 
 
-          try{
+  async function worker(workerIndex){
 
-            results.push(
-              await scanOne(d)
-            );
+    for(
+      let i = workerIndex;
+      i < ds.length;
+      i += concurrency
+    ){
 
-          }catch(e){
-
-            results.push({
-              domain:d,
-              error:e.message
-            });
-
-          }
+      if(abortScan){
+        break;
+      }
 
 
-          done++;
+      const domain =
+        ds[i];
 
 
-          $("#stat").textContent =
-            `${done}/${ds.length}`;
+      updateResult(domain,{
+        status:"checking",
+        topic:"Đang kiểm tra"
+      });
 
 
-          $("#prog").style.width =
-            Math.round(
-              done / ds.length * 100
-            ) + "%";
+      draw();
 
 
-          draw();
+      try{
 
-        }
+        const data =
+          await scanOne(domain);
+
+
+        updateResult(domain,{
+          ...data,
+          status:"complete",
+          error:null
+        });
+
+
+      }catch(e){
+
+        updateResult(domain,{
+          status:"complete",
+          error:e.message,
+          topic:"Lỗi",
+          description:e.message
+        });
 
       }
-    );
+
+
+      done++;
+
+
+      $("#stat").textContent =
+        `${done}/${ds.length}`;
+
+
+      $("#prog").style.width =
+        Math.round(
+          done / ds.length * 100
+        ) + "%";
+
+
+      draw();
+
+
+      /*
+        nghỉ nhẹ trước request kế
+      */
+      await new Promise(
+        resolve =>
+          setTimeout(
+            resolve,
+            350 + Math.random()*400
+          )
+      );
+
+    }
+
+  }
+
+
+  const workers = [];
+
+  for(
+    let i=0;
+    i<Math.min(concurrency,ds.length);
+    i++
+  ){
+    workers.push(worker(i));
+  }
 
 
   await Promise.all(workers);
@@ -747,7 +827,7 @@ async function run(){
   $("#stop").disabled = true;
 
 
-  if(abort){
+  if(abortScan){
 
     $("#stat").textContent =
       `Đã dừng ${done}/${ds.length}`;
@@ -762,107 +842,130 @@ async function run(){
 }
 
 
-/* ================================
+/* ========================================
    BUTTON
-================================ */
+======================================== */
 
-$("#start").onclick = run;
-
-
-$("#clean").onclick =
-  cleanInput;
-
-
-$("#stop").onclick = ()=>{
-
-  abort = true;
-
-  $("#stop").disabled = true;
-
-};
+$("#start").addEventListener(
+  "click",
+  run
+);
 
 
-$("#input").oninput =
-  updateInputStats;
+$("#clean").addEventListener(
+  "click",
+  cleanInput
+);
 
 
-/* ================================
-   CSV
-================================ */
+$("#stop").addEventListener(
+  "click",
+  () => {
 
-$("#csv").onclick = ()=>{
+    abortScan = true;
 
-  if(!results.length){
-    return;
+    $("#stop").disabled = true;
+
   }
+);
 
 
-  const h = [
-    "domain",
-    "years",
-    "firstYear",
-    "lastYear",
-    "totalSnapshots",
-    "topic",
-    "description"
-  ];
+$("#input").addEventListener(
+  "input",
+  updateInputStats
+);
 
 
-  const csv = [
+/* ========================================
+   CSV
+======================================== */
 
-    h.join(",")
+$("#csv").addEventListener(
+  "click",
+  () => {
 
-  ].concat(
-
-    results.map(
-      r => h.map(
-        k => JSON.stringify(
-          r[k] ?? ""
-        )
-      ).join(",")
-    )
-
-  ).join("\n");
-
-
-  /*
-    BOM để Excel đọc tiếng Việt chuẩn
-  */
-
-  const blob = new Blob(
-
-    [
-      "\uFEFF",
-      csv
-    ],
-
-    {
-      type:"text/csv;charset=utf-8"
+    if(!results.length){
+      alert("Chưa có dữ liệu để xuất.");
+      return;
     }
 
-  );
+
+    const headers = [
+      "domain",
+      "years",
+      "firstYear",
+      "lastYear",
+      "totalSnapshots",
+      "topic",
+      "description",
+      "error"
+    ];
 
 
-  const a =
-    document.createElement("a");
+    const lines = [
+      headers.join(",")
+    ];
 
 
-  a.href =
-    URL.createObjectURL(blob);
+    for(const r of results){
+
+      lines.push(
+        headers.map(
+          key =>
+            JSON.stringify(
+              r[key] ?? ""
+            )
+        ).join(",")
+      );
+
+    }
 
 
-  a.download =
-    "domain-history.csv";
+    const csv =
+      lines.join("\n");
 
 
-  a.click();
+    const blob =
+      new Blob(
+        [
+          "\uFEFF",
+          csv
+        ],
+        {
+          type:"text/csv;charset=utf-8"
+        }
+      );
 
 
-  URL.revokeObjectURL(
-    a.href
-  );
+    const url =
+      URL.createObjectURL(blob);
 
-};
+
+    const a =
+      document.createElement("a");
+
+
+    a.href = url;
+
+    a.download =
+      `domain-history-${Date.now()}.csv`;
+
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+
+    setTimeout(
+      () =>
+        URL.revokeObjectURL(url),
+      1000
+    );
+
+  }
+);
 
 </script>
 
