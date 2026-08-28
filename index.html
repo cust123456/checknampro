@@ -558,30 +558,33 @@ function draw(){
 
 async function scanOne(domain){
 
-  const controller =
-    new AbortController();
+  const controller = new AbortController();
 
-  const timeout =
-    setTimeout(
-      () => controller.abort(),
-      25000
-    );
+  // Render Free có thể mất thời gian khởi động
+  const timeout = setTimeout(
+    () => controller.abort(),
+    60000
+  );
 
   try{
 
+    const API_URL =
+      "https://checknampro-api.onrender.com/scan?domain=" +
+      encodeURIComponent(domain);
+
     const res = await fetch(
-      "/api/scan?domain=" +
-      encodeURIComponent(domain),
+      API_URL,
       {
+        method:"GET",
         cache:"no-store",
-        signal:controller.signal
+        signal:controller.signal,
+        headers:{
+          "Accept":"application/json"
+        }
       }
     );
 
-
-    const text =
-      await res.text();
-
+    const text = await res.text();
 
     let data;
 
@@ -593,24 +596,103 @@ async function scanOne(domain){
       );
     }
 
-
     if(!res.ok){
-
       throw new Error(
         data.error ||
         `API lỗi ${res.status}`
       );
-
     }
 
+    const first = data.first || {};
+    const last = data.last || {};
 
-    return data;
+    const firstYear =
+      first.year ||
+      (first.timestamp
+        ? String(first.timestamp).slice(0,4)
+        : "—");
+
+    const lastYear =
+      last.year ||
+      (last.timestamp
+        ? String(last.timestamp).slice(0,4)
+        : "—");
+
+    let years = "—";
+
+    if(
+      firstYear !== "—" &&
+      lastYear !== "—" &&
+      !isNaN(Number(firstYear)) &&
+      !isNaN(Number(lastYear))
+    ){
+      years =
+        Math.max(
+          0,
+          Number(lastYear) - Number(firstYear)
+        ) + " năm";
+    }
+
+    let description = data.description || "";
+
+    if(!description){
+
+      const parts = [];
+
+      if(firstYear !== "—"){
+        parts.push(
+          "Đầu " +
+          firstYear +
+          ": " +
+          (first.title || first.topic || "Không rõ")
+        );
+      }
+
+      if(lastYear !== "—"){
+        parts.push(
+          "Cuối " +
+          lastYear +
+          ": " +
+          (last.title || last.topic || "Không rõ")
+        );
+      }
+
+      description = parts.join(" | ");
+    }
+
+    return {
+      domain:data.domain || domain,
+      hasHistory:data.hasHistory ?? true,
+      years,
+      firstYear,
+      lastYear,
+      totalSnapshots:data.totalSnapshots ?? (
+        data.hasHistory === false ? 0 : 2
+      ),
+      topic:
+        data.topic ||
+        last.topic ||
+        first.topic ||
+        "Khác/Không rõ",
+      description,
+      first,
+      last
+    };
 
   }catch(e){
 
     if(e.name === "AbortError"){
       throw new Error(
-        "Quá thời gian chờ API"
+        "Render/Wayback phản hồi quá 60 giây"
+      );
+    }
+
+    if(
+      e instanceof TypeError &&
+      /fetch/i.test(e.message)
+    ){
+      throw new Error(
+        "Không kết nối được API Render hoặc bị CORS"
       );
     }
 
