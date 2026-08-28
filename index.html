@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Domain History Checker</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font:14px system-ui;background:#0b1020;color:#eef2ff}.wrap{max-width:1180px;margin:auto;padding:24px}h1{margin:0 0 16px;font-size:28px}.card{background:#121a2e;border:1px solid #26324d;border-radius:14px;padding:16px;margin-bottom:14px}textarea{width:100%;min-height:150px;background:#0d1425;color:#fff;border:1px solid #33415f;border-radius:10px;padding:12px;resize:vertical}.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}button{border:0;border-radius:9px;padding:10px 15px;font-weight:700;cursor:pointer}.go{background:#22c55e;color:#04130a}.stop{background:#ef4444;color:#fff}.csv{background:#334155;color:#fff}.muted{color:#94a3b8}.progress{height:8px;background:#1e293b;border-radius:9px;overflow:hidden;flex:1;min-width:160px}.progress>i{display:block;height:100%;width:0;background:#38bdf8}.table{overflow:auto}table{width:100%;border-collapse:collapse;min-width:1000px}th,td{padding:9px;border-bottom:1px solid #26324d;text-align:left;vertical-align:top}th{position:sticky;top:0;background:#121a2e}.ok{color:#86efac}.err{color:#fca5a5}.tag{display:inline-block;padding:3px 7px;border-radius:999px;background:#1e293b}.desc{max-width:420px;white-space:normal}.small{font-size:12px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Domain History Checker</h1>
+  <div class="card">
+    <textarea id="input" placeholder="Dán domain hoặc URL, mỗi dòng một cái...\nexample.com\nhttps://abc.com/page"></textarea>
+    <div class="bar">
+      <button class="go" id="start">Bắt đầu quét</button>
+      <button class="stop" id="stop" disabled>Dừng</button>
+      <button class="csv" id="csv">Xuất CSV</button>
+      <span id="stat" class="muted">0 domain</span>
+      <div class="progress"><i id="prog"></i></div>
+    </div>
+  </div>
+  <div class="card table">
+    <table>
+      <thead><tr><th>Domain</th><th>Trạng thái</th><th>Số năm</th><th>Năm đầu</th><th>Năm cuối</th><th>Bản lưu</th><th>Chủ đề</th><th>Mô tả lịch sử</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="8" class="muted">Chưa có dữ liệu.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+<script>
+const $=s=>document.querySelector(s);let abort=false,results=[];
+function domains(raw){const out=[];for(const x of raw.split(/[\s,]+/)){if(!x)continue;let s=x.trim();try{if(/^https?:\/\//i.test(s))s=new URL(s).hostname}catch{}s=s.replace(/^www\./i,'').replace(/[\/?#].*$/,'').toLowerCase();if(/^(?=.{1,253}$)(?:(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.)+[a-z]{2,}$/i.test(s)&&!out.includes(s))out.push(s)}return out.slice(0,500)}
+function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function draw(){const body=$('#rows');if(!results.length){body.innerHTML='<tr><td colspan="8" class="muted">Chưa có dữ liệu.</td></tr>';return}body.innerHTML=results.map(r=>`<tr><td><a style="color:#7dd3fc" target="_blank" href="https://web.archive.org/web/*/${esc(r.domain)}">${esc(r.domain)}</a></td><td class="${r.error?'err':'ok'}">${r.error?'Lỗi':'Xong'}</td><td>${esc(r.years??'—')}</td><td>${esc(r.firstYear??'—')}</td><td>${esc(r.lastYear??'—')}</td><td>${esc(r.totalSnapshots??0)}</td><td><span class="tag">${esc(r.topic??'Không rõ')}</span></td><td class="desc small">${esc(r.description??r.error??'')}</td></tr>`).join('')}
+async function scanOne(domain){const res=await fetch('/api/scan?domain='+encodeURIComponent(domain),{cache:'no-store'});const data=await res.json();if(!res.ok)throw new Error(data.error||'Scan lỗi');return data}
+async function run(){const ds=domains($('#input').value);if(!ds.length)return;abort=false;results=[];draw();$('#start').disabled=true;$('#stop').disabled=false;let done=0;const workers=Array.from({length:Math.min(5,ds.length)},async(_,wi)=>{for(let i=wi;i<ds.length&&!abort;i+=5){const d=ds[i];try{results.push(await scanOne(d))}catch(e){results.push({domain:d,error:e.message})}done++;$('#stat').textContent=`${done}/${ds.length}`;$('#prog').style.width=Math.round(done/ds.length*100)+'%';draw()}});await Promise.all(workers);$('#start').disabled=false;$('#stop').disabled=true}
+$('#start').onclick=run;$('#stop').onclick=()=>{abort=true;$('#stop').disabled=true};$('#input').oninput=()=>{$('#stat').textContent=domains($('#input').value).length+' domain'};
+$('#csv').onclick=()=>{if(!results.length)return;const h=['domain','years','firstYear','lastYear','totalSnapshots','topic','description'];const csv=[h.join(',')].concat(results.map(r=>h.map(k=>JSON.stringify(r[k]??'')).join(','))).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='domain-history.csv';a.click()};
+</script>
+</body></html>
